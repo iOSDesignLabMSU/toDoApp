@@ -10,6 +10,7 @@ import SnapKit
 
 protocol NoteDelegate: AnyObject {
     func didCreateNote(note: Note)
+    func didEditNote(titleText: String, subtitleText: String, index: Int)
 }
 
 class ViewController: UIViewController {
@@ -44,21 +45,23 @@ class ViewController: UIViewController {
         }
     }
     
-    func goToAddNoteVC() {
+    func goToAddNoteVC(note: Note?, index: Int?) {
         let vc = AddNoteViewController()
+        vc.note = note
+        vc.index = index
         vc.delegate = self
         navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc func addTapped() {
-        goToAddNoteVC()
+        goToAddNoteVC(note: nil, index: nil)
     }
 }
 
 extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        goToAddNoteVC()
+        goToAddNoteVC(note: notes[indexPath.row], index: indexPath.row)
     }
 
 }
@@ -77,6 +80,12 @@ extension ViewController: UITableViewDataSource {
 }
 
 extension ViewController: NoteDelegate {
+    func didEditNote(titleText: String, subtitleText: String, index: Int) {
+        notes[index].title = titleText
+        notes[index].subtitle = subtitleText
+        tableView.reloadData()
+    }
+    
     func didCreateNote(note: Note) {
         notes.append(note)
         tableView.reloadData()
